@@ -1,4 +1,5 @@
 import morgan from "morgan";
+import cors from "cors";
 import express from "express";
 import AppError from "./utils/appError.js";
 import tourRouter from "./routes/tourRoutes.js";
@@ -9,6 +10,7 @@ import errorMiddleware from "./middlewares/errorMiddleware.js";
 const app = express();
 
 // * APP MIDDLEWARE
+app.use(cors());
 app.use(express.json());
 app.use(express.static("./public"));
 

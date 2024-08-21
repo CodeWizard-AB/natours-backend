@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
+// * SYNCHRONOUS ERROR HANDLER 
 process.on("uncaughtException", (err) => {
 	console.log("UNCAUGHT EXCEPTION! SHUTTING DOWN");
 	console.log(err.message);
@@ -26,6 +27,7 @@ const server = app.listen(port, () => {
 	console.log("App running on port", port);
 });
 
+// * ASYNCHRONOUS ERROR HANDLER
 process.on("unhandledRejection", (err) => {
 	console.log("UNHANDLED REJECTTION! SHUTTING DOWN");
 	console.log(err.message);
