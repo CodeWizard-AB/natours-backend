@@ -1,6 +1,7 @@
 import { Router } from "express";
 import tourController from "../controllers/tourController.js";
 import tourMiddleware from "../middlewares/tourMiddleware.js";
+import authController from "../controllers/authController.js";
 
 const router = Router();
 
@@ -11,7 +12,11 @@ router
 	.route("/top-5-cheap")
 	.get(tourMiddleware.aliasTopTours, tourController.getTours);
 
-router.route("/").get(tourController.getTours).post(tourController.createTour);
+router
+	.route("/")
+	.all(authController.verifyToken)
+	.get(tourController.getTours)
+	.post(tourController.createTour);
 
 router
 	.route("/:id")

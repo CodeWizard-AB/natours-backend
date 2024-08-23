@@ -105,7 +105,6 @@ tourSchema.pre(/^find/, function (next) {
 });
 
 tourSchema.post(/^find/, function (doc, next) {
-	console.log(doc);
 	next();
 });
 
