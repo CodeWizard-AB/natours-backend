@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const userSchema = new Schema(
 	{
@@ -36,7 +37,14 @@ const userSchema = new Schema(
 			type: Boolean,
 			default: true,
 		},
+		role: {
+			type: String,
+			enum: ["admin", "user", "guide", "lead-guide"],
+			default: "user",
+		},
 		passwordChangedAt: Date,
+		passwordResetToken: String,
+		passwordResetExpires: Date,
 	},
 	{ timestamps: true }
 );
@@ -61,6 +69,17 @@ userSchema.methods.validateChangedPassword = function (jwtTimeStamp) {
 		return changedTimeStamp > jwtTimeStamp;
 	}
 	return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+	const resetToken = crypto.randomBytes(32).toString("hex");
+	this.passwordResetToken = crypto
+		.createHash("sha256")
+		.update(resetToken)
+		.digest("hex");
+
+	this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+	return resetToken;
 };
 
 const User = model("User", userSchema);

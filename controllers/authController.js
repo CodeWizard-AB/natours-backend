@@ -2,6 +2,7 @@ import catchAsync from "../utils/catchAsync.js";
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/appError.js";
+import sendEmail from "../utils/sendEmail.js";
 
 const signToken = (id) => {
 	return jwt.sign({ id }, process.env.JWT_TOKEN_SECRET, {
@@ -56,7 +57,6 @@ const verifyToken = catchAsync(async (req, res, next) => {
 
 	if (!token) {
 		const message = "You aren't logged in! Please log in to get access";
-		throw new Error(message);
 		return next(new AppError(message, 401));
 	}
 
@@ -78,4 +78,61 @@ const verifyToken = catchAsync(async (req, res, next) => {
 	next();
 });
 
-export default { signup, login, verifyToken };
+const verifyPerson = (...roles) => {
+	return catchAsync((req, res, next) => {
+		if (!roles.includes(req.user.role)) {
+			const message = "You do not have permission to perform this action";
+			return next(new AppError(message, 403));
+		}
+		next();
+	});
+};
+
+const forgotPassword = catchAsync(async (req, res, next) => {
+	const user = await User.findOne({ email: req.body.email });
+	if (!user) {
+		const message = "There is no user with email addresss";
+		return next(new AppError(message, 404));
+	}
+
+	const resetToken = user.createPasswordResetToken();
+	await user.save({ validateBeforeSave: false });
+
+	const resetURL = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`;
+
+	console.log(resetURL)
+
+	const message = `Forgot your passort? Submit a PATCH request with your with your new password and confirmPassword to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+	try {
+		await sendEmail({
+			email: user.email,
+			subject: "Your password reset token (valid for 10 minutes)",
+			message,
+		});
+
+		res.status(200).json({
+			status: "success",
+			message: "Token sent to email!",
+		});
+	} catch (error) {
+		console.log(error);
+
+		user.passwordResetToken = undefined;
+		user.passwordResetExpires = undefined;
+		await user.save({ validateBeforeSave: false });
+
+		const message = "There was an error sending the email. Try it again later!";
+		return next(new AppError(message, 500));
+	}
+});
+
+const resetPassword = catchAsync((req, res, next) => {});
+
+export default {
+	signup,
+	login,
+	verifyToken,
+	verifyPerson,
+	forgotPassword,
+	resetPassword,
+};
