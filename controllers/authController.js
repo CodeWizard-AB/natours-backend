@@ -100,9 +100,8 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 
 	const resetURL = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`;
 
-	console.log(resetURL)
-
 	const message = `Forgot your passort? Submit a PATCH request with your with your new password and confirmPassword to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
 	try {
 		await sendEmail({
 			email: user.email,
@@ -115,7 +114,7 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 			message: "Token sent to email!",
 		});
 	} catch (error) {
-		console.log(error);
+		console.log(error.message);
 
 		user.passwordResetToken = undefined;
 		user.passwordResetExpires = undefined;
