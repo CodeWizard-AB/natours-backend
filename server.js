@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
 
 // * SYNCHRONOUS ERROR HANDLER
 process.on("uncaughtException", (err) => {
@@ -9,7 +10,6 @@ process.on("uncaughtException", (err) => {
 
 import app from "./app.js";
 import connectionDb from "./config/db.js";
-dotenv.config({ path: "./.env" });
 
 // * DATABASE
 connectionDb();

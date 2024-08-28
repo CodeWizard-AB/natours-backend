@@ -58,6 +58,13 @@ userSchema.pre("save", async function (next) {
 	next();
 });
 
+userSchema.pre("save", async function (next) {
+	if (this.isModified("password") || this.isNew) {
+		this.passwordChangedAt = Date.now() - 1000;
+	}
+	next();
+});
+
 // * DOCUMENT INSTANCE METHODS
 userSchema.methods.validatePassword = async function (userPassword) {
 	return await bcrypt.compare(userPassword, this.password);
@@ -67,8 +74,7 @@ userSchema.methods.validateChangedPassword = function (jwtTimeStamp) {
 	if (this.passwordChangedAt) {
 		const changedTimeStamp = +(this.passwordChangedAt.getTime() / 1000);
 		return changedTimeStamp > jwtTimeStamp;
-	}
-	return false;
+	} else return false;
 };
 
 userSchema.methods.createPasswordResetToken = function () {
