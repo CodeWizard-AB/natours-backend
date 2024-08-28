@@ -9,16 +9,21 @@ router.post("/login", authController.login);
 
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
+router.patch(
+	"/updatePassword",
+	authController.verifyToken,
+	authController.updatePassword
+);
 
 router.route("/").get(userController.getUsers).post(userController.createUser);
 
 router
 	.route("/:id")
+	.all(authController.verifyToken)
 	.get(userController.getUser)
 	.patch(userController.updateUser)
 	.delete(
-		authController.verifyToken,
-		authController.verifyPerson("admin", "lead-guide"),
+		authController.verifyPerson("admin", "lead-guide", "user"),
 		userController.deleteUser
 	);
 

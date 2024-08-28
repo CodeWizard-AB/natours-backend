@@ -35,7 +35,7 @@ const login = catchAsync(async (req, res, next) => {
 
 	const user = await User.findOne({ email }).select("password");
 
-	if (!user || !(await user.validatePassword(password))) {
+	if (!user || !(await user.validatePassword(password, user.password))) {
 		const message = "Incorrect email or password";
 		return next(new AppError(message, 401));
 	}
@@ -153,6 +153,28 @@ const resetPassword = catchAsync(async (req, res, next) => {
 	res.status(200).json({ status: "success", token });
 });
 
+const updatePassword = catchAsync(async (req, res, next) => {
+	const user = await User.findOne({ email: req.body.email }).select("password");
+
+	if (!user) {
+		const message = "No user found";
+		return next(new AppError(message, 404));
+	}
+
+	if (!(await user.validatePassword(req.body.password))) {
+		const message = "Your current password is wrong";
+		return next(new AppError(message, 401));
+	}
+
+	user.password = req.body.password;
+	user.confirmPassword = req.body.confirmPassword;
+	user.save({ validateBeforeSave: false });
+
+	const token = signToken(user._id);
+
+	res.status(200).json({ status: "success", token });
+});
+
 export default {
 	signup,
 	login,
@@ -160,4 +182,5 @@ export default {
 	verifyPerson,
 	forgotPassword,
 	resetPassword,
+	updatePassword,
 };

@@ -36,6 +36,7 @@ const userSchema = new Schema(
 		active: {
 			type: Boolean,
 			default: true,
+			select: false,
 		},
 		role: {
 			type: String,
@@ -51,7 +52,7 @@ const userSchema = new Schema(
 
 // * DOCUMENT MIDDLEWARE
 userSchema.pre("save", async function (next) {
-	if (this.isModified("password")) {
+	if (this.isModified("password") || this.isNew) {
 		this.password = await bcrypt.hash(this.password, 10);
 		this.confirmPassword = undefined;
 	}
@@ -65,9 +66,18 @@ userSchema.pre("save", async function (next) {
 	next();
 });
 
+// * QUERY MIDDLEWARE
+userSchema.pre(/^find/, function (next) {
+	this.find({ active: { $ne: false } });
+	next();
+});
+
 // * DOCUMENT INSTANCE METHODS
-userSchema.methods.validatePassword = async function (userPassword) {
-	return await bcrypt.compare(userPassword, this.password);
+userSchema.methods.validatePassword = async function (
+	userPassword,
+	hashPassword
+) {
+	return await bcrypt.compare(userPassword, hashPassword);
 };
 
 userSchema.methods.validateChangedPassword = function (jwtTimeStamp) {

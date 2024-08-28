@@ -92,19 +92,10 @@ tourSchema.pre("save", function (next) {
 	next();
 });
 
-// tourSchema.post("save", function (doc, next) {
-// 	console.log(doc);
-// 	next();
-// });
-
 // * QUERY MIDDLEWARE
 tourSchema.pre(/^find/, function (next) {
 	this.find({ secretTour: { $ne: true } });
 	this.start = Date.now();
-	next();
-});
-
-tourSchema.post(/^find/, function (doc, next) {
 	next();
 });
 
