@@ -26,6 +26,15 @@ const reviewSchema = new Schema(
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+// * QUERY MIDDLEWARE
+reviewSchema.pre(/^find/, function (next) {
+	this.populate({
+		path: "user",
+		select: "name photo",
+	});
+	next();
+});
+
 const Review = model("Review", reviewSchema);
 
 export default Review;

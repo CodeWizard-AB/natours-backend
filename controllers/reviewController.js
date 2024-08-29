@@ -1,7 +1,9 @@
+import _ from "lodash";
 import Review from "../models/reviewModel.js";
 import ApiFeature from "../utils/apiFeatures.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
+import factoryController from "./factoryController.js";
 
 const getReviews = catchAsync(async (req, res) => {
 	const feature = new ApiFeature(Review.find(), req.query)
@@ -16,33 +18,17 @@ const getReviews = catchAsync(async (req, res) => {
 		.json({ status: "success", result: reviews.length, data: { reviews } });
 });
 
-const getReview = catchAsync(async (req, res, next) => {
-	const review = await Review.findById(req.params.id);
-
-	if (!review) {
-		const message = "No review found with that ID";
-		return next(new AppError(message, 404));
-	}
-
-	res.status(200).json({ status: "success", data: { review } });
-});
-
 const createReview = catchAsync(async (req, res, next) => {
-	const review = await Review.create(req.body);
+	if (!req.body.tour) req.body.tour = req.params.tourId;
+	if (!req.body.user) req.body.user = req.user.id;
 
+	const review = await Review.create(req.body);
 	res.status(201).json({ status: "success", data: { review } });
 });
 
-const updateReview = catchAsync(async (req, res, next) => {
-	const review = await Review.findByIdAndUpdate(req.params.id, req.body, {
-		new: true,
-		runValidators: true,
-	});
-
-	res.status(200).json({ status: "success", data: { review } });
-});
-
-const deleteReview = catchAsync(async (req, res, next) => {});
+const getReview = factoryController.getOne(Review);
+const updateReview = factoryController.updateOne(Review);
+const deleteReview = factoryController.deleteOne(Review);
 
 export default {
 	getReview,

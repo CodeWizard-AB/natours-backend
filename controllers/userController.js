@@ -3,6 +3,7 @@ import User from "../models/userModel.js";
 import ApiFeature from "../utils/apiFeatures.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
+import factoryController from "./factoryController.js";
 
 const getUsers = catchAsync(async (req, res) => {
 	const features = new ApiFeature(User.find(), req.query)
@@ -17,28 +18,9 @@ const getUsers = catchAsync(async (req, res) => {
 		.json({ status: "success", results: users.length, data: { users } });
 });
 
-const getUser = catchAsync(async (req, res) => {
-	const user = await User.findById(req.params.id);
-	res.status(200).json({ status: "success", data: { user } });
-});
-
-const createUser = catchAsync(async (req, res) => {
-	const users = await User.create(req.body);
-	res
-		.status(201)
-		.json({ status: "success", result: users.length, data: { users } });
-});
-
-const deleteUser = catchAsync(async (req, res) => {
-	const user = await User.findByIdAndUpdate(req.params.id, { active: false });
-
-	if (!user) {
-		const err = "No user found with that ID";
-		return next(new AppError(err, 404));
-	}
-
-	res.status(204).json({ status: "success", data: { user: null } });
-});
+const getUser = factoryController.getOne(User);
+const createUser = factoryController.createOne(User);
+const deleteUser = factoryController.deleteOne(User);
 
 const updateUser = catchAsync(async (req, res, next) => {
 	if (req.body.password || req.body.confirmPassword) {

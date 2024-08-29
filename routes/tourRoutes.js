@@ -2,8 +2,11 @@ import { Router } from "express";
 import tourController from "../controllers/tourController.js";
 import tourMiddleware from "../middlewares/tourMiddleware.js";
 import authController from "../controllers/authController.js";
+import reviewRouter from "../routes/reviewRoutes.js";
 
 const router = Router();
+
+router.use("/:tourId/reviews", reviewRouter);
 
 router.route("/tour-stats").get(tourController.getTourStats);
 router.route("/monthly-plan/:year").get(tourController.getMonthlyPlan);
@@ -14,9 +17,12 @@ router
 
 router
 	.route("/")
-	// .all(authController.verifyToken)
 	.get(tourController.getTours)
-	.post(tourController.createTour);
+	.post(
+		authController.verifyToken,
+		authController.verifyPerson("admin"),
+		tourController.createTour
+	);
 
 router
 	.route("/:id")
