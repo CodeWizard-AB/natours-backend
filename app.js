@@ -7,6 +7,7 @@ import AppError from "./utils/appError.js";
 import { xss } from "express-xss-sanitizer";
 import tourRouter from "./routes/tourRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import reviewRouter from "./routes/reviewRoutes.js";
 import mongoSanitize from "express-mongo-sanitize";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import hpp from "hpp";
@@ -36,7 +37,7 @@ app.use(
 app.use(xss()); // * CROSS SITE ATTACK PREVENTION
 app.use(helmet()); // * HEADER SECURITY
 app.use(cors()); // * CROSS-ORIGIN REQUEST
-app.use(express.json({ limit: "10kb" })); // * BODY PARSER
+app.use(express.json({ limit: "100kb" })); // * BODY PARSER
 app.use(mongoSanitize()); // * DATA SANITIZATION QUERY
 app.use("/api", limiter); // * REQUEST RATE LIMIT
 app.use(express.static("./public")); // * STATIC FOLDER
@@ -48,6 +49,7 @@ if (process.env.NODE_ENV === "development") {
 // * APP ROUTES
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 // * NOT FOUND ROUTE HANDLER
 app.all("*", (req, res, next) => {

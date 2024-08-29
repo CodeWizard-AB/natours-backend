@@ -14,7 +14,7 @@ router
 
 router
 	.route("/")
-	.all(authController.verifyToken)
+	// .all(authController.verifyToken)
 	.get(tourController.getTours)
 	.post(tourController.createTour);
 

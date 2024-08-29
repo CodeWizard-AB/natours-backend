@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, Types, model } from "mongoose";
 import slugify from "slugify";
 
 // * TOUR SCHEMA
@@ -77,6 +77,35 @@ const tourSchema = new Schema(
 			type: Boolean,
 			default: false,
 		},
+		startLocation: {
+			type: {
+				type: String,
+				enum: ["Point"],
+				default: "Point",
+			},
+			coordinates: [Number],
+			address: String,
+			description: String,
+		},
+		locations: [
+			{
+				type: {
+					type: String,
+					default: "Point",
+					enum: ["Point"],
+				},
+				coordinates: [Number],
+				address: String,
+				description: String,
+				day: Number,
+			},
+		],
+		guides: [
+			{
+				type: Types.ObjectId,
+				ref: "User",
+			},
+		],
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -94,7 +123,10 @@ tourSchema.pre("save", function (next) {
 
 // * QUERY MIDDLEWARE
 tourSchema.pre(/^find/, function (next) {
-	this.find({ secretTour: { $ne: true } });
+	this.find({ secretTour: { $ne: true } }).populate({
+		path: "guides",
+		select: "-__v -passwordChangedAt",
+	});
 	this.start = Date.now();
 	next();
 });

@@ -25,7 +25,7 @@ const userSchema = new Schema(
 		},
 		confirmPassword: {
 			type: String,
-			required: [true, "A user must have a confirm passsword"],
+			// required: [true, "A user must have a confirm passsword"],
 			validate: {
 				validator(value) {
 					return value === this.password;

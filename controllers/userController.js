@@ -22,10 +22,12 @@ const getUser = catchAsync(async (req, res) => {
 	res.status(200).json({ status: "success", data: { user } });
 });
 
-const createUser = async (req, res) => {
-	const user = await User.create(req.body);
-	res.status(201).json({ status: "success", data: { user } });
-};
+const createUser = catchAsync(async (req, res) => {
+	const users = await User.create(req.body);
+	res
+		.status(201)
+		.json({ status: "success", result: users.length, data: { users } });
+});
 
 const deleteUser = catchAsync(async (req, res) => {
 	const user = await User.findByIdAndUpdate(req.params.id, { active: false });
