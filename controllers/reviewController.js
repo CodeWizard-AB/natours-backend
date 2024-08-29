@@ -18,14 +18,7 @@ const getReviews = catchAsync(async (req, res) => {
 		.json({ status: "success", result: reviews.length, data: { reviews } });
 });
 
-const createReview = catchAsync(async (req, res, next) => {
-	if (!req.body.tour) req.body.tour = req.params.tourId;
-	if (!req.body.user) req.body.user = req.user.id;
-
-	const review = await Review.create(req.body);
-	res.status(201).json({ status: "success", data: { review } });
-});
-
+const createReview = factoryController.createOne(Review);
 const getReview = factoryController.getOne(Review);
 const updateReview = factoryController.updateOne(Review);
 const deleteReview = factoryController.deleteOne(Review);

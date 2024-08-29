@@ -1,6 +1,5 @@
 import Tour from "../models/tourModel.js";
 import ApiFeature from "../utils/apiFeatures.js";
-import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import factoryController from "./factoryController.js";
 

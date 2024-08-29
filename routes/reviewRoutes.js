@@ -1,6 +1,7 @@
 import { Router } from "express";
 import reviewController from "../controllers/reviewController.js";
 import authController from "../controllers/authController.js";
+import reviewMiddleware from "../middlewares/reviewMiddleware.js";
 
 const router = Router({ mergeParams: true });
 
@@ -10,6 +11,7 @@ router
 	.post(
 		authController.verifyToken,
 		authController.verifyPerson("user"),
+		reviewMiddleware.setTourUserIds,
 		reviewController.createReview
 	);
 
