@@ -3,8 +3,8 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 import sendEmail from "../utils/sendEmail.js";
-import bcrypt from "bcrypt";
 import crypto from "crypto";
+import _ from "lodash";
 
 const signToken = (id) => {
 	return jwt.sign({ id }, process.env.JWT_TOKEN_SECRET, {
@@ -13,15 +13,23 @@ const signToken = (id) => {
 };
 
 const signup = catchAsync(async (req, res) => {
-	const { role, ...reqBody } = req.body;
-	const newUser = await User.create(reqBody);
+	const filterBody = _.omit(req.body, ["role"]);
+	const user = await User.create(filterBody);
+	const cookieOptions = {
+		expires: new Date(
+			Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+		),
+		httpOnly: true,
+	};
+	if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
-	const token = signToken(newUser._id);
+	const token = signToken(user._id);
+	user.password = undefined;
 
-	res.status(201).json({
+	res.cookie("jwt", token, cookieOptions).status(201).json({
 		status: "success",
 		token,
-		data: { user: newUser },
+		data: { user },
 	});
 });
 
