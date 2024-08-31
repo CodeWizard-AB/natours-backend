@@ -36,7 +36,7 @@ app.use(
 ); // * PREVENT PARAMETERS POLLUTION
 app.use(xss()); // * CROSS SITE ATTACK PREVENTION
 app.use(helmet()); // * HEADER SECURITY
-app.use(cors()); // * CROSS-ORIGIN REQUEST
+app.use(cors()); // * CROSS-ORIGIN POLICY
 app.use(express.json({ limit: "100kb" })); // * BODY PARSER
 app.use(mongoSanitize()); // * DATA SANITIZATION QUERY
 app.use("/api", limiter); // * REQUEST RATE LIMIT

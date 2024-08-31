@@ -5,11 +5,12 @@ import reviewMiddleware from "../middlewares/reviewMiddleware.js";
 
 const router = Router({ mergeParams: true });
 
+router.use(authController.verifyToken);
+
 router
 	.route("/")
 	.get(reviewController.getReviews)
 	.post(
-		authController.verifyToken,
 		authController.verifyPerson("user"),
 		reviewMiddleware.setTourUserIds,
 		reviewController.createReview
@@ -17,9 +18,9 @@ router
 
 router
 	.route("/:id")
-	.all(authController.verifyToken)
 	.get(reviewController.getReview)
+	.all(authController.verifyPerson("user", "admin"))
 	.delete(reviewController.deleteReview)
-	.patch(authController.verifyPerson("user"), reviewController.updateReview);
+	.patch(reviewController.updateReview);
 
 export default router;

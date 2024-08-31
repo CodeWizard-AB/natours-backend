@@ -1,28 +1,50 @@
+import ApiFeature from "../utils/apiFeatures.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
+
+const getAll = (Model) => {
+	return catchAsync(async (req, res, next) => {
+		let filter = {};
+		if (req.params.tourId) filter = { tour: req.params.tourId };
+		const feature = new ApiFeature(Model.find(filter), req.query)
+			.filter()
+			.sort()
+			.select()
+			.paginate();
+		const documents = await feature.query;
+
+		res.status(200).json({
+			status: "success",
+			result: documents.length,
+			data: { documents },
+		});
+	});
+};
 
 const createOne = (Model) => {
 	return catchAsync(async (req, res) => {
 		const document = await Tour.create(req.body);
 		res.status(201).json({
 			status: "success",
-			data: { [`${Model}`.toLowerCase()]: document },
+			data: { document },
 		});
 	});
 };
 
-const getOne = (Model) => {
+const getOne = (Model, popOptions) => {
 	return catchAsync(async (req, res, next) => {
-		const document = await Model.findById(req.params.id);
+		let query = Model.findById(req.params.id);
+		if (popOptions) query = query.populate(popOptions);
+		const document = await query;
 
 		if (!document) {
-			const message = "No document found with that ID";
-			return next(new AppError(message, 404));
+			const err = "No document found with that ID";
+			return next(new AppError(err, 404));
 		}
 
 		res.status(200).json({
 			status: "success",
-			data: { [`${Model}`.toLowerCase()]: document },
+			data: { document },
 		});
 	});
 };
@@ -41,7 +63,7 @@ const updateOne = (Model) => {
 
 		res.status(200).json({
 			status: "success",
-			data: { [`${Model}`.toLowerCase()]: document },
+			data: { document },
 		});
 	});
 };
@@ -57,7 +79,7 @@ const deleteOne = (Model) => {
 
 		res.status(204).json({
 			status: "success",
-			data: { [`${Model}`.toLowerCase()]: document },
+			data: { document },
 		});
 	});
 };
@@ -67,4 +89,5 @@ export default {
 	deleteOne,
 	getOne,
 	createOne,
+	getAll,
 };

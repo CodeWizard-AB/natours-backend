@@ -1,27 +1,12 @@
 import Tour from "../models/tourModel.js";
-import ApiFeature from "../utils/apiFeatures.js";
 import catchAsync from "../utils/catchAsync.js";
 import factoryController from "./factoryController.js";
 
-const getTours = catchAsync(async (req, res) => {
-	const features = new ApiFeature(Tour.find(), req.query)
-		.filter()
-		.sort()
-		.select()
-		.paginate();
-	const tours = await features.query;
-
-	res.status(200).json({
-		status: "success",
-		results: tours.length,
-		data: { tours },
-	});
-});
-
+const getTours = factoryController.getAll(Tour);
 const createTour = factoryController.createOne(Tour);
-const getTour = factoryController.getOne(Tour);
 const updateTour = factoryController.updateOne(Tour);
 const deleteTour = factoryController.deleteOne(Tour);
+const getTour = factoryController.getOne(Tour, { path: "reviews" });
 
 const getTourStats = catchAsync(async (req, res) => {
 	const stats = await Tour.aggregate([
