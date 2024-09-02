@@ -39,6 +39,7 @@ const tourSchema = new Schema(
 			default: 4.5,
 			min: [1, "Rating must be more or equal than 1.0"],
 			max: [5, "Rating must be less or equal than 5.0"],
+			set: (value) => Math.round(value * 10) / 10,
 		},
 		ratingQuantity: {
 			type: Number,
@@ -110,6 +111,10 @@ const tourSchema = new Schema(
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+tourSchema.index({ price: 1, ratingAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: "2dsphere" });
+
 // * VIRTUAL PROPERTIES
 tourSchema.virtual("durationWeeks").get(function () {
 	return +(this.duration / 7).toFixed(2);
@@ -138,10 +143,10 @@ tourSchema.pre(/^find/, function (next) {
 });
 
 // * AGGREGATION MIDDLEWARE
-tourSchema.pre("aggregate", function (next) {
-	this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-	next();
-});
+// tourSchema.pre("aggregate", function (next) {
+// 	this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// 	next();
+// });
 
 // * TOUR MODEL
 const Tour = model("Tour", tourSchema);

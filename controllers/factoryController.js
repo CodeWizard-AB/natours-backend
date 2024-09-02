@@ -16,17 +16,18 @@ const getAll = (Model) => {
 		res.status(200).json({
 			status: "success",
 			result: documents.length,
-			data: { documents },
+			data: { data: documents },
 		});
 	});
 };
 
 const createOne = (Model) => {
 	return catchAsync(async (req, res) => {
-		const document = await Tour.create(req.body);
+		console.log(req.body);
+		const document = await Model.create(req.body);
 		res.status(201).json({
 			status: "success",
-			data: { document },
+			data: { data: document },
 		});
 	});
 };
@@ -44,7 +45,7 @@ const getOne = (Model, popOptions) => {
 
 		res.status(200).json({
 			status: "success",
-			data: { document },
+			data: { data: ddocument },
 		});
 	});
 };
@@ -63,7 +64,7 @@ const updateOne = (Model) => {
 
 		res.status(200).json({
 			status: "success",
-			data: { document },
+			data: { data: document },
 		});
 	});
 };
@@ -79,7 +80,7 @@ const deleteOne = (Model) => {
 
 		res.status(204).json({
 			status: "success",
-			data: { document },
+			data: { data: document },
 		});
 	});
 };
