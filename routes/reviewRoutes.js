@@ -5,7 +5,7 @@ import reviewMiddleware from "../middlewares/reviewMiddleware.js";
 
 const router = Router({ mergeParams: true });
 
-router.use(authController.verifyToken);
+// router.use(authController.verifyToken);
 
 router
 	.route("/")

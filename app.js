@@ -11,9 +11,15 @@ import reviewRouter from "./routes/reviewRoutes.js";
 import mongoSanitize from "express-mongo-sanitize";
 import errorMiddleware from "./middlewares/errorMiddleware.js";
 import hpp from "hpp";
+import cookieParser from "cookie-parser";
 
 // * APP
 const app = express();
+
+app.use((req, res, next) => {
+	console.log("upcoming token cookie", req.cookies);
+	next();
+});
 
 // * APP MIDDLEWARE
 const limiter = rateLimit({
@@ -22,6 +28,12 @@ const limiter = rateLimit({
 	message: "Too many requests from this IP, please try again in an hour!",
 });
 
+app.use(
+	cors({
+		origin: ["http://localhost:3001"],
+		credentials: true,
+	})
+); // * CROSS-ORIGIN POLICY
 app.use(
 	hpp({
 		whitelist: [
@@ -36,10 +48,10 @@ app.use(
 ); // * PREVENT PARAMETERS POLLUTION
 app.use(xss()); // * CROSS SITE ATTACK PREVENTION
 app.use(helmet()); // * HEADER SECURITY
-app.use(cors()); // * CROSS-ORIGIN POLICY
-app.use(express.json({ limit: "100kb" })); // * BODY PARSER
 app.use(mongoSanitize()); // * DATA SANITIZATION QUERY
 app.use("/api", limiter); // * REQUEST RATE LIMIT
+app.use(express.json({ limit: "100kb" })); // * BODY PARSER
+app.use(cookieParser()); // * COOKIE PARSER
 app.use(express.static("./public")); // * STATIC FOLDER
 
 if (process.env.NODE_ENV === "development") {

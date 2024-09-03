@@ -12,25 +12,28 @@ const signToken = (id) => {
 	});
 };
 
-const signup = catchAsync(async (req, res) => {
-	const filterBody = _.omit(req.body, ["role"]);
-	const user = await User.create(filterBody);
+const createSendToken = (user, statusCode, req, res) => {
+	const token = signToken(user._id);
 	const cookieOptions = {
 		expires: new Date(
 			Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
 		),
 		httpOnly: true,
 	};
-	if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
-	const token = signToken(user._id);
+	// Remove password from output
 	user.password = undefined;
 
-	res.cookie("jwt", token, cookieOptions).status(201).json({
-		status: "success",
-		token,
-		data: { user },
-	});
+	res
+		.status(statusCode)
+		.cookie("jwt", token, cookieOptions)
+		.json({ status: "success", token, data: { user } });
+};
+
+const signup = catchAsync(async (req, res) => {
+	const filterBody = _.omit(req.body, ["role"]);
+	const user = await User.create(filterBody);
+	createSendToken(user, 201, req, res);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -48,12 +51,7 @@ const login = catchAsync(async (req, res, next) => {
 		return next(new AppError(message, 401));
 	}
 
-	const token = signToken(user._id);
-
-	res.status(200).json({
-		status: "success",
-		token,
-	});
+	createSendToken(user, 200, req, res);
 });
 
 const verifyToken = catchAsync(async (req, res, next) => {
@@ -63,6 +61,8 @@ const verifyToken = catchAsync(async (req, res, next) => {
 		req.headers.authorization.startsWith("Bearer")
 	) {
 		token = req.headers.authorization.split(" ").at(-1);
+	} else if (req.cookies.jwt) {
+		token = req.cookies.jwt;
 	}
 
 	if (!token) {
