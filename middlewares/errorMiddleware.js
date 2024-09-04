@@ -29,18 +29,18 @@ const handleJwtExpiredError = () => {
 
 const sendErrDevelopment = (err, req, res) => {
 	if (req.originalUrl.startsWith("/api")) {
-		res.status(err.statusCode).json({
+		return res.status(err.statusCode).json({
 			status: err.status,
 			error: err,
 			message: err.message,
 			stack: err.stack,
 		});
-	} else {
-		res.status(err.statusCode).json({
-			status: err.status,
-			message: "Wrong api url",
-		});
 	}
+
+	return res.status(err.statusCode).json({
+		status: err.status,
+		message: "Wrong api url",
+	});
 };
 
 const sendErrProduction = (err, res) => {

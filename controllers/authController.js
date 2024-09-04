@@ -169,7 +169,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
 		return next(new AppError(message, 404));
 	}
 
-	if (!(await user.validatePassword(req.body.password))) {
+	if (!(await user.validatePassword(req.body.currentPassword))) {
 		const message = "Your current password is wrong";
 		return next(new AppError(message, 401));
 	}

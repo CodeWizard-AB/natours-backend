@@ -16,11 +16,6 @@ import cookieParser from "cookie-parser";
 // * APP
 const app = express();
 
-app.use((req, res, next) => {
-	console.log("upcoming token cookie", req.cookies);
-	next();
-});
-
 // * APP MIDDLEWARE
 const limiter = rateLimit({
 	limit: 100,
