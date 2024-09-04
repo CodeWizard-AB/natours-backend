@@ -27,13 +27,20 @@ const handleJwtExpiredError = () => {
 	return new AppError(message, 401);
 };
 
-const sendErrDevelopment = (err, res) => {
-	res.status(err.statusCode).json({
-		status: err.status,
-		error: err,
-		message: err.message,
-		stack: err.stack,
-	});
+const sendErrDevelopment = (err, req, res) => {
+	if (req.originalUrl.startsWith("/api")) {
+		res.status(err.statusCode).json({
+			status: err.status,
+			error: err,
+			message: err.message,
+			stack: err.stack,
+		});
+	} else {
+		res.status(err.statusCode).json({
+			status: err.status,
+			message: "Wrong api url",
+		});
+	}
 };
 
 const sendErrProduction = (err, res) => {
@@ -57,7 +64,7 @@ const globalError = (err, req, res, next) => {
 	err.statusCode = err.statusCode || 500;
 
 	if (process.env.NODE_ENV === "development") {
-		sendErrDevelopment(err, res);
+		sendErrDevelopment(err, req, res);
 	} else if (process.env.NODE_ENV === "production") {
 		let error = { ...err };
 		if (error.name === "CastError") error = handleCastErrorDB(error);
