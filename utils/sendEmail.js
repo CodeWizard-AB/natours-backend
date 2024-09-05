@@ -4,16 +4,32 @@ dotenv.config({ path: "./.env" });
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const sendEmail = async (options) => {
-	const { data, error } = await resend.emails.send({
-		from: "Acme <onboarding@resend.dev>",
-		to: options.email,
-		subject: options.subject,
-		html: `<strong>${options.message}</strong>`,
-		text: options.message,
-	});
+export default class Email {
+	constructor(user, url) {
+		this.to = user.email;
+		this.firstName = user.name.split(" ")[0];
+		this.url = url;
+		this.from = `Acme ${process.env.EMAIL_FROM}`;
+	}
 
-	console.log(data, error);
-};
+	async send(template, subject) {
+		await resend.emails.send({
+			from: this.from,
+			to: this.to,
+			subject: subject,
+			text: template,
+			html: "<p>HTML Content<p>",
+		});
+	}
 
-export default sendEmail;
+	async sendWelcome() {
+		await this.send("Welcome", "Welcome to the Natours Family");
+	}
+
+	async sendPasswordReset() {
+		await this.send(
+			"passwordReset",
+			"Your password reset token (valid for only 10 minutes)"
+		);
+	}
+}

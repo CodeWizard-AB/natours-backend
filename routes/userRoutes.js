@@ -17,7 +17,7 @@ router.get("/me", userMiddleware.getMe, userController.getUser);
 router.delete("/deleteMe", userMiddleware.getMe, userController.deleteUser);
 router.patch(
 	"/updateMe",
-	userMiddleware.uploadPhoto,
+	userMiddleware.uploadAvatar,
 	userMiddleware.getMe,
 	userMiddleware.filterUserBody,
 	userController.updateUser

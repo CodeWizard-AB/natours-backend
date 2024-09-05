@@ -20,7 +20,7 @@ router.get(
 	tourController.getToursWithin
 );
 
-router.get('/distances/:latlng/unit/:unit', tourController.getDistances)
+router.get("/distances/:latlng/unit/:unit", tourController.getDistances);
 
 router
 	.route("/")
@@ -34,7 +34,7 @@ router
 router
 	.route("/:id")
 	.get(tourController.getTour)
-	.patch(tourController.updateTour)
+	.patch(tourMiddleware.uploadTourImages, tourController.updateTour)
 	.delete(
 		authController.verifyToken,
 		authController.verifyPerson("admin", "lead-guide"),

@@ -23,6 +23,7 @@ const limiter = rateLimit({
 	message: "Too many requests from this IP, please try again in an hour!",
 });
 
+app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
 		origin: ["http://localhost:3001"],
